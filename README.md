@@ -32,7 +32,17 @@ Retardio is an advanced Discord bot that provides real-time alerts on significan
     DISCORD_TOKEN=your_discord_bot_token_here
     ```
 
-    Edit the `config.json` file to include the channel ID where alerts should be posted.
+    Edit the `config.json` file to include the channel ID where alerts should be posted and other configurations. Here's an example with explanations for each configuration:
+
+    ```json
+    {
+      "channelId": "your_discord_channel_id_here", // Discord channel ID where notifications will be sent.
+      "fetchInterval": 600000, // Interval between data fetches in milliseconds (600000ms = 10 minutes).
+      "perPage": 200, // Number of coins to fetch per page from the CoinGecko API.
+      "minChangePercentage": 20, // Minimum percentage change in coin price to trigger a notification.
+      "cooldownPeriod": 43200000 // Cooldown period in milliseconds before a coin can be notified about again (43200000ms = 12 hours).
+    }
+    ```
 
 4. Start the bot:
 

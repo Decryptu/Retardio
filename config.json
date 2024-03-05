@@ -1,3 +1,7 @@
 {
-    "channelId": "1032931601954377780"
+    "channelId": "1032931601954377780",
+    "fetchInterval": 600000,
+    "perPage": 200,
+    "minChangePercentage": 20,
+    "cooldownPeriod": 43200000
 }
