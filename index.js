@@ -17,6 +17,7 @@ const client = new Client({
 });
 
 client.commands = new Collection();
+global.botActive = true; // Bot is active by default
 const __dirname = path.dirname(fileURLToPath(import.meta.url)); // Correctly resolve paths for ES Modules
 
 async function loadCommands() {
@@ -40,6 +41,22 @@ async function loadEvents() {
     }
   }
 }
+
+// Interaction handler for slash commands
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isCommand()) return;
+
+  const command = client.commands.get(interaction.commandName);
+
+  if (!command) return;
+
+  try {
+    await command.execute(interaction);
+  } catch (error) {
+    console.error(error);
+    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+  }
+});
 
 async function initializeBot() {
     await loadCommands();

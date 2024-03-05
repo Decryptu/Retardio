@@ -4,13 +4,16 @@ const command = {
     data: new SlashCommandBuilder()
         .setName('off')
         .setDescription('Turns the bot off.'),
-    async execute(interaction, botActive, setActive) {
-        if (botActive) {
-            setActive(false);
+    async execute(interaction) {
+        await interaction.deferReply();
+        console.log(`Received /off command from ${interaction.user.tag}`);
+        if (global.botActive) {
+            global.botActive = false;
             console.log('Bot turned off');
-            await interaction.reply('Bot is now off.');
+            await interaction.editReply('Bot is now off.');
         } else {
-            await interaction.reply('Bot is already off.');
+            console.log('Attempt to turn off bot, but bot was already off');
+            await interaction.editReply('Bot is already off.');
         }
     },
 };

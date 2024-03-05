@@ -9,8 +9,8 @@ const configPath = path.join(__dirname, '../config.json');
 const config = JSON.parse(readFileSync(configPath));
 
 export function handleMessage(message) {
-  // Ignore messages from bots
-  if (message.author.bot) return;
+  // Ignore messages from bots or if the bot is turned off
+  if (message.author.bot || !global.botActive) return;
 
   // Check if the message is in an authorized channel
   if (message.channelId === config.channelId) {
