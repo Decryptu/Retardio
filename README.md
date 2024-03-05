@@ -12,27 +12,33 @@ Retardio is an advanced Discord bot that provides real-time alerts on significan
 ## Installation
 
 1. Clone the repository:
-```
-git clone https://github.com/Decryptu/Retardio.git
-```
+
+    ```bash
+    git clone https://github.com/Decryptu/Retardio.git
+    ```
 
 2. Install dependencies:
-```
-cd Retardio
-npm install
-```
+
+    ```bash
+    cd Retardio
+    npm install
+    ```
 
 3. Configure your bot:
-Create a `.env` file in the root directory and add your Discord bot token like so:
-```
-DISCORD_TOKEN=your_discord_bot_token_here
-```
-Edit the `config.json` file to include the channel ID where alerts should be posted.
+
+    Create a `.env` file in the root directory and add your Discord bot token like so:
+
+    ```plaintext
+    DISCORD_TOKEN=your_discord_bot_token_here
+    ```
+
+    Edit the `config.json` file to include the channel ID where alerts should be posted.
 
 4. Start the bot:
-```
-npm run start
-```
+
+    ```bash
+    npm run start
+    ```
 
 ## Demonstration
 
