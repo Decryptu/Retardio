@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require('discord.js');
+import { SlashCommandBuilder } from 'discord.js';
 
-module.exports = {
+const ready = {
     name: 'ready',
     once: true,
     async execute(client) {
@@ -19,3 +19,5 @@ module.exports = {
         }
     },
 };
+
+export default ready;

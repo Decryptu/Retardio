@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require('discord.js');
+import { SlashCommandBuilder } from 'discord.js';
 
-module.exports = {
+const command = {
     data: new SlashCommandBuilder()
         .setName('on')
         .setDescription('Turns the bot on.'),
@@ -14,3 +14,5 @@ module.exports = {
         }
     },
 };
+
+export default command;

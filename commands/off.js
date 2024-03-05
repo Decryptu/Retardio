@@ -1,12 +1,12 @@
-const { SlashCommandBuilder } = require('discord.js');
+import { SlashCommandBuilder } from 'discord.js';
 
-module.exports = {
+const command = {
     data: new SlashCommandBuilder()
         .setName('off')
         .setDescription('Turns the bot off.'),
     async execute(interaction, botActive, setActive) {
-        if (!botActive) {
-            setActive(true);
+        if (botActive) {
+            setActive(false);
             console.log('Bot turned off');
             await interaction.reply('Bot is now off.');
         } else {
@@ -14,3 +14,5 @@ module.exports = {
         }
     },
 };
+
+export default command;
