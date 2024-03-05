@@ -3,6 +3,7 @@ import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { handleMessage } from './logic/messageHandler.js';
 
 // Initialize Discord Client
 const client = new Client({
@@ -41,10 +42,11 @@ async function loadEvents() {
 }
 
 async function initializeBot() {
-  await loadCommands();
-  await loadEvents();
-  client.login(process.env.DISCORD_TOKEN);
-}
+    await loadCommands();
+    await loadEvents();
+    client.on('messageCreate', handleMessage); // This is the correct place.
+    client.login(process.env.DISCORD_TOKEN);
+}  
 
 initializeBot();
 
