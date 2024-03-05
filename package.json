@@ -1,0 +1,24 @@
+{
+  "name": "retardio",
+  "version": "1.0.0",
+  "description": "Retarded Discord.js bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Decryptu/Retardio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Decryptu/Retardio/issues"
+  },
+  "homepage": "https://github.com/Decryptu/Retardio#readme",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5"
+  }
+}
