@@ -61,10 +61,10 @@ async function fetchAndProcessData(client) {
       }
     }
 
-    // Remove coins from cooldown after 24h
+    // Remove coins from cooldown after 12h
     const now = Date.now();
     cooldowns.forEach((timestamp, symbol) => {
-      if (now - timestamp >= 86400000) { // 24 hours in milliseconds
+      if (now - timestamp >= 43200000) { // 12 hours in milliseconds
         cooldowns.delete(symbol);
         console.log(`Cooldown expired for ${symbol}, it can be notified again.`);
       }
