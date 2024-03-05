@@ -21,6 +21,7 @@
   "homepage": "https://github.com/Decryptu/Retardio#readme",
   "dependencies": {
     "discord.js": "^14.14.1",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2"
   }
 }

@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { handleMessage } from './logic/messageHandler.js';
+import { setupCoinGeckoTask } from './tasks/fetchCoinGecko.js';
 
 // Initialize Discord Client
 const client = new Client({
@@ -61,7 +62,8 @@ client.on('interactionCreate', async interaction => {
 async function initializeBot() {
     await loadCommands();
     await loadEvents();
-    client.on('messageCreate', handleMessage); // This is the correct place.
+    client.on('messageCreate', handleMessage);
+    setupCoinGeckoTask(client);
     client.login(process.env.DISCORD_TOKEN);
 }  
 
