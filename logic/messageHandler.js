@@ -17,10 +17,16 @@ export function handleMessage(message) {
     // Log all messages in the authorized channel for debugging
     console.log(`${message.author.tag}: ${message.content}`);
 
-    // Respond to "ping" messages with "pong"
+    // Respond to "gm" messages
     if (message.content.toLowerCase() === 'gm') {
       message.reply('gm')
         .then(() => console.log('Replied with "gm"')) // Log successful replies
+        .catch(console.error); // Log any errors during reply
+    }
+    // Add a condition to respond to "gn" messages
+    else if (message.content.toLowerCase() === 'gn') {
+      message.reply('gn')
+        .then(() => console.log('Replied with "gn"')) // Log successful replies
         .catch(console.error); // Log any errors during reply
     }
   }
