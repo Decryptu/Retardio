@@ -43,25 +43,6 @@ async function loadEvents() {
   }
 }
 
-async function deleteCommands() {
-  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
-  try {
-    console.log('Started refreshing application (/) commands.');
-    
-    const commands = await rest.get(Routes.applicationCommands(client.user.id));
-    const commandsToDelete = commands.filter(command => ['on', 'off'].includes(command.name));
-
-    for (const command of commandsToDelete) {
-      await rest.delete(Routes.applicationCommand(client.user.id, command.id));
-      console.log(`Deleted command: ${command.name}`);
-    }
-
-    console.log('Successfully deleted specified commands.');
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 // Interaction handler for slash commands
 client.on('interactionCreate', async interaction => {
   if (!interaction.isCommand()) return;
