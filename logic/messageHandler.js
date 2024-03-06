@@ -18,9 +18,9 @@ export function handleMessage(message) {
     console.log(`${message.author.tag}: ${message.content}`);
 
     // Respond to "ping" messages with "pong"
-    if (message.content.toLowerCase() === 'ping') {
-      message.reply('Pong!')
-        .then(() => console.log('Replied with "Pong!"')) // Log successful replies
+    if (message.content.toLowerCase() === 'gm') {
+      message.reply('gm')
+        .then(() => console.log('Replied with "gm"')) // Log successful replies
         .catch(console.error); // Log any errors during reply
     }
   }

@@ -6,79 +6,106 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const configPath = path.join(__dirname, '../config.json');
-const config = JSON.parse(fs.readFileSync(configPath));
-const cooldowns = new Map();
+const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-// Helper function to delay execution
+const cooldowns = new Map();
+const degenCooldowns = new Map();
+
 function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function fetchAndProcessData(client) {
-  if (!global.botActive) return; // Ensure the bot is active before proceeding
-
-  // Fetch data from CoinGecko API with parameters from config.json
-  const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${config.perPage}&page=1&sparkline=false&price_change_percentage=24h`;
-
-  try {
+async function controlledFetch(url) {
+    await delay(200); // Adjusted delay to manage request rate
     const response = await fetch(url);
-    const data = await response.json();
+    return response;
+}
 
-    for (const coin of data) {
-      const { symbol, price_change_percentage_24h, name } = coin;
-      // Notify only for significant changes based on config.minChangePercentage and if not recently notified
-      if (Math.abs(price_change_percentage_24h) >= config.minChangePercentage && !cooldowns.has(symbol)) {
-        const color = price_change_percentage_24h > 0 ? '#00FF00' : '#FF0000'; // Green for positive, red for negative
+async function fetchAndProcessData(client, mode = 'scanner') {
+    const isActive = mode === 'scanner' ? global.botActive : global.degenActive;
+    if (!isActive) return;
 
-        // Construct the embed message to be sent
-        const embed = new EmbedBuilder()
-          .setColor(color)
-          .setTitle(name)
-          .setThumbnail(coin.image)
-          .addFields(
-            { name: 'Ticker', value: symbol.toUpperCase(), inline: true },
-            { name: 'Price', value: `$${coin.current_price}`, inline: true },
-            { name: 'Market Cap', value: `$${coin.market_cap.toLocaleString()}`, inline: true },
-            { name: '24h Change', value: `${price_change_percentage_24h.toFixed(2)}%`, inline: true }
-          );
+    console.log(`Starting to fetch data for ${mode} mode.`);
 
-        await delay(1000); // Wait for 1 second before proceeding to avoid spamming
+    const modeConfig = config[`${mode}Mode`];
+    let coinsFetched = 0;
+    let currentPage = 1;
+    const startRank = mode === 'scanner' ? 1 : config.scannerMode.perPage + 1;
+    const endRank = startRank + modeConfig.perPage - 1;
+    const currentCooldowns = mode === 'scanner' ? cooldowns : degenCooldowns;
+    let lastCoinRank = 0;
 
-        // Fetch the designated channel and send the message
-        client.channels.fetch(config.channelId)
-          .then(async channel => {
-            if (channel) {
-              await channel.send({ embeds: [embed] })
-                .then(() => console.log(`Message successfully sent for ${name} (${symbol.toUpperCase()}).`))
-                .catch(error => console.error(`Could not send message for ${name} (${symbol.toUpperCase()}): ${error}`));
-            } else {
-              console.log(`Channel with ID ${config.channelId} was not found.`);
+    while (coinsFetched < modeConfig.perPage) {
+        const fetchSize = 250; // Keep using batches of 250 to minimize the number of requests
+        const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${fetchSize}&page=${currentPage}&sparkline=false&price_change_percentage=24h`;
+
+        try {
+            const response = await controlledFetch(url);
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
             }
-          })
-          .catch(error => console.error(`Could not fetch channel ${config.channelId}: ${error}`));
+            const data = await response.json();
+            if (data.length === 0) break; // Exit loop if no more data is returned
 
-        // Set a cooldown for the coin
-        cooldowns.set(symbol, Date.now());
-      } else {
-        console.log(`No significant change or already notified for ${name} (${symbol.toUpperCase()}).`);
-      }
+            for (const coin of data) {
+                const rank = coin.market_cap_rank;
+                const now = Date.now();
+                const cooldownEnd = currentCooldowns.get(coin.symbol) ? currentCooldowns.get(coin.symbol) + config.cooldownPeriod : 0;
+
+                if (rank >= startRank && rank <= endRank && Math.abs(coin.price_change_percentage_24h) >= modeConfig.minChangePercentage && now > cooldownEnd) {
+                    const color = coin.price_change_percentage_24h > 0 ? '#00FF00' : '#FF0000';
+                    const coinTitle = mode === 'degen' ? `🔥 ${coin.name}` : coin.name;
+                    const embed = new EmbedBuilder()
+                        .setColor(color)
+                        .setTitle(`${coinTitle}`)
+                        .setThumbnail(coin.image)
+                        .addFields(
+                            { name: 'Rank', value: `#${coin.market_cap_rank}`, inline: true },
+                            { name: 'Ticker', value: coin.symbol.toUpperCase(), inline: true },
+                            { name: 'Price', value: `$${coin.current_price}`, inline: true },
+                            { name: 'Market Cap', value: `$${coin.market_cap.toLocaleString()}`, inline: true },
+                            { name: '24h Change', value: `${coin.price_change_percentage_24h.toFixed(2)}%`, inline: true }
+                        );
+
+                    if (client.channels.cache.get(config.channelId)) {
+                        await client.channels.cache.get(config.channelId).send({ embeds: [embed] })
+                            .then(() => console.log(`Message successfully sent for ${coin.name} (${coin.symbol.toUpperCase()}) in ${mode} mode.`))
+                            .catch(console.error);
+                        currentCooldowns.set(coin.symbol, now);
+                    }
+                    lastCoinRank = rank;
+                }
+            }
+
+            coinsFetched += data.filter(coin => coin.market_cap_rank >= startRank && coin.market_cap_rank <= endRank).length;
+            currentPage++;
+
+            console.log(`Fetched ${data.length} coins for ${mode} mode. Page: ${currentPage - 1}`);
+            await delay(20000); // Adjusted delay after each fetch to manage API rate limit
+        } catch (error) {
+            console.error(`Error fetching data from CoinGecko in ${mode} mode:`, error);
+            break;
+        }
     }
 
-    // Remove coins from cooldown after the period specified in config.json
+    console.log(`Finished fetching data for ${mode} mode. Last coin rank fetched: #${lastCoinRank}, indicating the total number of coins fetched.`);
+    cleanupCooldowns(currentCooldowns); // Cleanup cooldowns after processing is complete
+}
+
+// Cleanup function to remove coins from cooldowns if their cooldown period has expired
+function cleanupCooldowns(cooldownMap) {
     const now = Date.now();
-    cooldowns.forEach((timestamp, symbol) => {
-      if (now - timestamp >= config.cooldownPeriod) {
-        cooldowns.delete(symbol);
-        console.log(`Cooldown expired for ${symbol}, it can be notified again.`);
-      }
-    });
-  } catch (error) {
-    console.error("Error fetching data from CoinGecko or processing data:", error);
-  }
+    for (const [coin, timestamp] of cooldownMap.entries()) {
+        if (now > timestamp + config.cooldownPeriod) {
+            cooldownMap.delete(coin);
+        }
+    }
 }
 
 export function setupCoinGeckoTask(client) {
-  // Run immediately and then every interval specified in config.json
-  fetchAndProcessData(client);
-  setInterval(() => fetchAndProcessData(client), config.fetchInterval);
+    fetchAndProcessData(client, 'scanner'); // Initialize fetching for scanner mode
+    setInterval(() => fetchAndProcessData(client, 'scanner'), config.fetchInterval + 5000); // Set an interval to periodically fetch data in scanner mode
+
+    fetchAndProcessData(client, 'degen'); // Initialize fetching for degen mode
+    setInterval(() => fetchAndProcessData(client, 'degen'), config.fetchInterval + 10000); // Set an interval to periodically fetch data in degen mode
 }

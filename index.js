@@ -1,10 +1,9 @@
-import { Client, GatewayIntentBits, Collection } from 'discord.js';
+import { Client, GatewayIntentBits, Collection, REST, Routes } from 'discord.js';
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { handleMessage } from './logic/messageHandler.js';
-import { setupCoinGeckoTask } from './tasks/fetchCoinGecko.js';
 
 // Initialize Discord Client
 const client = new Client({
@@ -18,7 +17,8 @@ const client = new Client({
 });
 
 client.commands = new Collection();
-global.botActive = true; // Bot is active by default
+global.botActive = true; // Scanner is active by default
+global.degenActive = true; // Degen is active by default
 const __dirname = path.dirname(fileURLToPath(import.meta.url)); // Correctly resolve paths for ES Modules
 
 async function loadCommands() {
@@ -43,6 +43,25 @@ async function loadEvents() {
   }
 }
 
+async function deleteCommands() {
+  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+  try {
+    console.log('Started refreshing application (/) commands.');
+    
+    const commands = await rest.get(Routes.applicationCommands(client.user.id));
+    const commandsToDelete = commands.filter(command => ['on', 'off'].includes(command.name));
+
+    for (const command of commandsToDelete) {
+      await rest.delete(Routes.applicationCommand(client.user.id, command.id));
+      console.log(`Deleted command: ${command.name}`);
+    }
+
+    console.log('Successfully deleted specified commands.');
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 // Interaction handler for slash commands
 client.on('interactionCreate', async interaction => {
   if (!interaction.isCommand()) return;
@@ -62,8 +81,8 @@ client.on('interactionCreate', async interaction => {
 async function initializeBot() {
     await loadCommands();
     await loadEvents();
+    client.once('ready', deleteCommands); // Ensure deleteCommands runs after the bot is fully ready
     client.on('messageCreate', handleMessage);
-    setupCoinGeckoTask(client);
     client.login(process.env.DISCORD_TOKEN);
 }  
 

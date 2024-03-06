@@ -1,7 +1,14 @@
 {
-    "channelId": "1032931601954377780",
-    "fetchInterval": 600000,
-    "perPage": 100,
-    "minChangePercentage": 20,
-    "cooldownPeriod": 64800000
-}
+    "channelId": "1185568440392617984",
+    "fetchInterval": 900000,
+    "cooldownPeriod": 64800000,
+    "scannerMode": {
+      "perPage": 100,
+      "minChangePercentage": 20
+    },
+    "degenMode": {
+      "perPage": 1000,
+      "minChangePercentage": 40
+    }
+  }
+  
