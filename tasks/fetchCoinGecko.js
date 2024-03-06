@@ -51,6 +51,7 @@ async function fetchAndProcessData(client, mode = 'scanner') {
                 const rank = coin.market_cap_rank;
                 const now = Date.now();
                 const cooldownEnd = currentCooldowns.get(coin.symbol) ? currentCooldowns.get(coin.symbol) + config.cooldownPeriod : 0;
+                const coinGeckoUrl = `https://www.coingecko.com/en/coins/${coin.id}`;
 
                 if (rank >= startRank && rank <= endRank && Math.abs(coin.price_change_percentage_24h) >= modeConfig.minChangePercentage && now > cooldownEnd) {
                     const color = coin.price_change_percentage_24h > 0 ? '#00FF00' : '#FF0000';
@@ -58,13 +59,14 @@ async function fetchAndProcessData(client, mode = 'scanner') {
                     const embed = new EmbedBuilder()
                         .setColor(color)
                         .setTitle(`${coinTitle}`)
+                        .setURL(coinGeckoUrl) // Make the title clickable
                         .setThumbnail(coin.image)
                         .addFields(
                             { name: 'Rank', value: `#${coin.market_cap_rank}`, inline: true },
                             { name: 'Ticker', value: coin.symbol.toUpperCase(), inline: true },
                             { name: 'Price', value: `$${coin.current_price}`, inline: true },
                             { name: 'Market Cap', value: `$${coin.market_cap.toLocaleString()}`, inline: true },
-                            { name: '24h Change', value: `${coin.price_change_percentage_24h.toFixed(2)}%`, inline: true }
+                            { name: '24h Change', value: `${coin.price_change_percentage_24h.toFixed(2)}%`, inline: true },
                         );
 
                     if (client.channels.cache.get(config.channelId)) {

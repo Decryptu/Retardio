@@ -62,7 +62,6 @@ client.on('interactionCreate', async interaction => {
 async function initializeBot() {
     await loadCommands();
     await loadEvents();
-    client.once('ready', deleteCommands); // Ensure deleteCommands runs after the bot is fully ready
     client.on('messageCreate', handleMessage);
     client.login(process.env.DISCORD_TOKEN);
 }  
