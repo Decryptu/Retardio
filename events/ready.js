@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { setupCoinGeckoTask } from '../tasks/fetchCoinGecko.js'; // Ensure correct path
+import { setupCoinGeckoTask } from '../tasks/fetchCoinGecko.js';
+import { setupTrendingCoinsTask } from '../tasks/fetchTrendingCoins.js';
 
 const ready = {
     name: 'ready',
@@ -18,6 +19,7 @@ const ready = {
 
             // Call setupCoinGeckoTask here to ensure it starts after the bot is ready
             setupCoinGeckoTask(client);
+            setupTrendingCoinsTask(client);
             console.log('CoinGecko fetching task started.');
         } catch (error) {
             console.error("Error setting up commands:", error);
