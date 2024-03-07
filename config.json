@@ -8,7 +8,7 @@
     },
     "degenMode": {
       "perPage": 1000,
-      "minChangePercentage": 55
+      "minChangePercentage": 50
     }
   }
   
