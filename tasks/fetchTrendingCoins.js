@@ -45,9 +45,6 @@ async function fetchTrendingCoins(client) {
     }
 }
 
-// /tasks/fetchTrendingCoins.js
-// ... other imports and functions remain the same
-
 function getNextNoonParisTime() {
     const now = new Date();
     const parisTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
