@@ -10,6 +10,7 @@ const ready = {
 
         const commands = [
             new SlashCommandBuilder().setName('scanner').setDescription('Toggles the scanner mode.'),
+            new SlashCommandBuilder().setName('trending').setDescription('Toggles the trending mode.'),
             new SlashCommandBuilder().setName('degen').setDescription('Toggles the degen mode.')
         ].map(command => command.toJSON());
 

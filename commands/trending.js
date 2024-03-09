@@ -1,7 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
 
-global.trendingActive = true; // Enable trending by default
-
 const command = {
     data: new SlashCommandBuilder()
         .setName('trending')
