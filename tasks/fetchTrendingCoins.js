@@ -10,6 +10,11 @@ const configPath = path.join(__dirname, '../config.json');
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
 async function fetchTrendingCoins(client) {
+    // Check if the trending coins feature is enabled
+    if (!global.trendingActive) {
+        console.log('Trending coins feature is disabled.');
+        return;
+    }
     console.log('Fetching trending coins...');
 
     const url = `https://api.coingecko.com/api/v3/search/trending`;

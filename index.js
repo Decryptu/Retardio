@@ -19,6 +19,7 @@ const client = new Client({
 client.commands = new Collection();
 global.botActive = true; // Scanner is active by default
 global.degenActive = true; // Degen is active by default
+global.trendingActive = true; // Trending is active by default
 const __dirname = path.dirname(fileURLToPath(import.meta.url)); // Correctly resolve paths for ES Modules
 
 async function loadCommands() {
